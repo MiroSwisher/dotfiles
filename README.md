@@ -20,6 +20,8 @@ git clone git@github.com:MiroSwisher/dotfiles.git ~/.dotfiles
 The installer:
 
 - installs Neovim under `~/.local` if `nvim` is missing
+- installs/checks LazyVim CLI tools user-locally on Linux: `rg`, `fd`, `lazygit`, `fzf`
+- warns if `luarocks` is missing; most setups work fine without it
 - backs up any existing `~/.config/nvim`
 - symlinks `~/.config/nvim -> ~/.dotfiles/nvim`
 - adds shared shell config to bash/zsh rc files
