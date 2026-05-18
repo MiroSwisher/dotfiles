@@ -7,13 +7,13 @@ Small, user-local dotfiles repo focused on Neovim/LazyVim.
 After replacing the repo URL in `install.sh` / publishing this repo:
 
 ```sh
-DOTFILES_REPO=https://github.com/YOU/dotfiles.git sh -c "$(curl -fsSL https://raw.githubusercontent.com/YOU/dotfiles/main/install.sh)"
+DOTFILES_REPO=git@github.com:MiroSwisher/dotfiles.git sh -c "$(curl -fsSL https://raw.githubusercontent.com/MiroSwisher/dotfiles/main/install.sh)"
 ```
 
 Safer/manual option:
 
 ```sh
-git clone https://github.com/YOU/dotfiles.git ~/.dotfiles
+git clone git@github.com:MiroSwisher/dotfiles.git ~/.dotfiles
 ~/.dotfiles/install.sh
 ```
 

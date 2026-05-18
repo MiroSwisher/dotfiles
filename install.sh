@@ -6,7 +6,7 @@ set -eu
 #   DOTFILES_REPO=https://github.com/YOU/dotfiles.git sh -c "$(curl -fsSL https://raw.githubusercontent.com/YOU/dotfiles/main/install.sh)"
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
-DOTFILES_REPO="${DOTFILES_REPO:-https://github.com/YOUR_USERNAME/dotfiles.git}"
+DOTFILES_REPO="${DOTFILES_REPO:-git@github.com:MiroSwisher/dotfiles.git}"
 NVIM_VERSION="${NVIM_VERSION:-stable}"
 
 log() { printf '\033[1;32m==>\033[0m %s\n' "$*"; }
@@ -77,7 +77,6 @@ clone_or_update_dotfiles() {
     log "Updating $DOTFILES_DIR"
     git -C "$DOTFILES_DIR" pull --ff-only
   else
-    [ "$DOTFILES_REPO" != "https://github.com/YOUR_USERNAME/dotfiles.git" ] || err "Set DOTFILES_REPO to your GitHub repo URL before curl-piping this installer"
     log "Cloning $DOTFILES_REPO to $DOTFILES_DIR"
     git clone "$DOTFILES_REPO" "$DOTFILES_DIR"
   fi
