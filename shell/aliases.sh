@@ -67,11 +67,13 @@ alias ports='ss -tlnp'
 alias psa='ps aux | grep -v grep'
 alias dfh='df -h'
 
-if du -d 0 . >/dev/null 2>&1; then
-  alias duh='du -h -d 1 | sort -h'
-else
-  alias duh='du -h --max-depth=1 | sort -h'
-fi
+duh() {
+  if du -h -d 1 . >/dev/null 2>&1; then
+    du -h -d 1 "${1:-.}" | sort -h
+  else
+    du -h --max-depth=1 "${1:-.}" | sort -h
+  fi
+}
 
 if command -v htop >/dev/null 2>&1; then
   alias top='htop'
