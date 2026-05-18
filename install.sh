@@ -2,8 +2,8 @@
 set -eu
 
 # User-local dotfiles installer, intended for shared SSH machines too.
-# Usage after publishing:
-#   DOTFILES_REPO=https://github.com/YOU/dotfiles.git sh -c "$(curl -fsSL https://raw.githubusercontent.com/YOU/dotfiles/main/install.sh)"
+# Usage:
+#   sh -c "$(curl -fsSL https://raw.githubusercontent.com/MiroSwisher/dotfiles/main/install.sh)"
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 DOTFILES_REPO="${DOTFILES_REPO:-git@github.com:MiroSwisher/dotfiles.git}"
@@ -105,6 +105,32 @@ link_nvim() {
   ln -s "$src" "$dest"
 }
 
+install_shell_config() {
+  [ -f "$DOTFILES_DIR/shell/env.sh" ] || return 0
+  [ -f "$DOTFILES_DIR/shell/aliases.sh" ] || return 0
+
+  block='\n# Dotfiles shell config\nif [ -f "$HOME/.dotfiles/shell/env.sh" ]; then . "$HOME/.dotfiles/shell/env.sh"; fi\nif [ -f "$HOME/.dotfiles/shell/aliases.sh" ]; then . "$HOME/.dotfiles/shell/aliases.sh"; fi\n'
+
+  for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+    # Always configure bash. Configure zsh if the file already exists or zsh is the current shell.
+    case "$rc" in
+      */.zshrc)
+        [ -f "$rc" ] || [ "${SHELL:-}" = "$(command -v zsh 2>/dev/null || true)" ] || continue
+        ;;
+    esac
+
+    if [ ! -f "$rc" ]; then
+      log "Creating ${rc#$HOME/}"
+      : > "$rc"
+    fi
+
+    if ! grep -q 'Dotfiles shell config' "$rc"; then
+      log "Adding dotfiles shell config to ${rc#$HOME/}"
+      printf "%b" "$block" >> "$rc"
+    fi
+  done
+}
+
 sync_nvim_plugins() {
   if command -v nvim >/dev/null 2>&1; then
     log "Installing/syncing Neovim plugins"
@@ -118,6 +144,7 @@ ensure_path
 install_nvim
 clone_or_update_dotfiles
 link_nvim
+install_shell_config
 sync_nvim_plugins
 
 log "Done. If nvim is not found, restart your shell or run: export PATH=\"$HOME/.local/bin:$PATH\""

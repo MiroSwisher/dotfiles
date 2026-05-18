@@ -22,8 +22,8 @@ The installer:
 - installs Neovim under `~/.local` if `nvim` is missing
 - backs up any existing `~/.config/nvim`
 - symlinks `~/.config/nvim -> ~/.dotfiles/nvim`
+- adds shared shell config to bash/zsh rc files
 - runs `nvim --headless "+Lazy! sync" +qa`
-- adds `~/.local/bin` to `~/.bashrc` if needed
 
 No `sudo` required.
 
@@ -34,6 +34,25 @@ No `sudo` required.
 :Lazy sync   " install/update plugins
 :Mason       " install LSPs/formatters/linters
 :LazyExtras  " enable LazyVim language extras
+```
+
+## Shell config
+
+Shared bash/zsh config lives in:
+
+```txt
+shell/env.sh
+shell/aliases.sh
+```
+
+Useful aliases include:
+
+```sh
+c          # clear
+v          # nvim
+gs         # git status
+ll         # long ls/eza listing
+..         # cd ..
 ```
 
 ## Current Neovim stack
