@@ -1,0 +1,73 @@
+# ──────────────────────────────────────────────
+# Shell
+# ──────────────────────────────────────────────
+command = /usr/bin/zsh
+
+# ──────────────────────────────────────────────
+# Window
+# ──────────────────────────────────────────────
+confirm-close-surface = false
+window-decoration = true
+window-padding-x = 10
+window-padding-y = 10,0
+
+# ──────────────────────────────────────────────
+# Font
+# ──────────────────────────────────────────────
+font-size = 12
+
+# ──────────────────────────────────────────────
+# Appearance
+# ──────────────────────────────────────────────
+theme = Catppuccin Macchiato
+background-opacity = 0.95
+background-blur = 15
+
+# ──────────────────────────────────────────────
+# Terminal
+# ──────────────────────────────────────────────
+# Let Ghostty advertise its native terminal capabilities for TUIs like pi.
+# term = xterm-256color
+# Avoid jumping/redrawing while selecting text during streaming output.
+scroll-to-bottom = false
+copy-on-select = false
+
+# ──────────────────────────────────────────────
+# Keybindings
+# ──────────────────────────────────────────────
+
+# Tabs
+keybind = ctrl+t=new_tab
+keybind = ctrl+w=close_surface
+keybind = ctrl+one=goto_tab:1
+keybind = ctrl+two=goto_tab:2
+keybind = ctrl+three=goto_tab:3
+keybind = ctrl+four=goto_tab:4
+keybind = ctrl+five=goto_tab:5
+keybind = ctrl+six=goto_tab:6
+keybind = ctrl+seven=goto_tab:7
+keybind = ctrl+eight=goto_tab:8
+keybind = ctrl+nine=goto_tab:9
+
+# Clipboard
+keybind = performable:ctrl+c=copy_to_clipboard
+keybind = ctrl+v=paste_from_clipboard
+
+# Word/line delete
+keybind = ctrl+backspace=text:\x17
+keybind = alt+backspace=text:\x15
+
+# Splits
+keybind = ctrl+d=new_split:right
+
+# Split navigation
+keybind = ctrl+shift+comma=goto_split:previous
+keybind = ctrl+shift+period=goto_split:next
+
+# Config
+keybind = ctrl+shift+e=open_config
+keybind = ctrl+shift+r=reload_config
+
+# Prompt jumping
+keybind = shift+up=jump_to_prompt:-1
+keybind = shift+down=jump_to_prompt:1

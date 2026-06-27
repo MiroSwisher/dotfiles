@@ -1,0 +1,186 @@
+# =============================================================
+# ~/.zshrc — portable dotfiles
+# Machine-specific additions go in ~/.zshrc.local (not tracked)
+# =============================================================
+
+# -----------------------------------------
+# History
+# -----------------------------------------
+
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt HIST_IGNORE_DUPS HIST_IGNORE_SPACE HIST_VERIFY SHARE_HISTORY
+
+# -----------------------------------------
+# Options
+# -----------------------------------------
+
+setopt AUTO_CD NO_BEEP EXTENDED_GLOB INTERACTIVE_COMMENTS
+
+# -----------------------------------------
+# Completion
+# -----------------------------------------
+
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+# -----------------------------------------
+# Keybindings (fix arrow keys / word jump)
+# -----------------------------------------
+
+bindkey -e
+
+bindkey '\e[1;5C' forward-word
+bindkey '\e[1;5D' backward-word
+bindkey '\e[3~'   delete-char
+
+bindkey '\e[H'  beginning-of-line
+bindkey '\e[F'  end-of-line
+bindkey '\eOH'  beginning-of-line
+bindkey '\eOF'  end-of-line
+
+if ! command -v atuin >/dev/null 2>&1; then
+  bindkey '^[[A' history-beginning-search-backward
+  bindkey '^[[B' history-beginning-search-forward
+fi
+
+# -----------------------------------------
+# Ghostty TERM fallback
+# -----------------------------------------
+
+if [[ "$TERM" == "xterm-ghostty" ]] && ! infocmp xterm-ghostty &>/dev/null 2>&1; then
+  export TERM=xterm-256color
+fi
+
+# -----------------------------------------
+# Colors and prompt
+# -----------------------------------------
+
+autoload -U colors && colors
+
+if command -v dircolors >/dev/null 2>&1; then
+  eval "$(dircolors -b)"
+else
+  export LS_COLORS="di=34:ln=36:so=35:pi=33:ex=32:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
+fi
+
+setopt PROMPT_SUBST
+PROMPT='%B%{$fg[green]%}%n@%m%{$reset_color%}%b:%B%{$fg[blue]%}%~%{$reset_color%}%b$ '
+
+# -----------------------------------------
+# PATH
+# -----------------------------------------
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# NVM — lazy load
+export NVM_DIR="$HOME/.nvm"
+
+if [ -d "$NVM_DIR/versions/node" ]; then
+  _nvm_node_bin="$(ls -d "$NVM_DIR"/versions/node/v* 2>/dev/null | sort -V | tail -1)/bin"
+  [ -d "$_nvm_node_bin" ] && export PATH="$_nvm_node_bin:$PATH"
+  unset _nvm_node_bin
+fi
+
+_load_nvm() {
+  unset -f _load_nvm nvm node npm npx
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+}
+nvm()  { _load_nvm; nvm "$@" }
+node() { _load_nvm; node "$@" }
+npm()  { _load_nvm; npm "$@" }
+npx()  { _load_nvm; npx "$@" }
+
+# Conda — lazy load (skipped if not installed)
+_conda_find_base() {
+  for p in /opt/anaconda3 "$HOME/anaconda3" "$HOME/miniconda3" "$HOME/miniforge3"; do
+    [ -x "$p/bin/conda" ] && echo "$p" && return
+  done
+}
+
+if _conda_base="$(_conda_find_base)"; then
+  _conda_lazy_init() {
+    unset -f _conda_lazy_init conda
+    __conda_setup="$("$_conda_base/bin/conda" 'shell.zsh' 'hook' 2>/dev/null)"
+    if [ $? -eq 0 ]; then
+      eval "$__conda_setup"
+    elif [ -f "$_conda_base/etc/profile.d/conda.sh" ]; then
+      . "$_conda_base/etc/profile.d/conda.sh"
+    else
+      export PATH="$_conda_base/bin:$PATH"
+    fi
+    unset __conda_setup _conda_base
+  }
+  conda() { _conda_lazy_init; conda "$@" }
+fi
+unset -f _conda_find_base
+
+# -----------------------------------------
+# Editor
+# -----------------------------------------
+
+export EDITOR="nvim"
+export VISUAL="nvim"
+
+# -----------------------------------------
+# Dotfiles shell config (shared bash + zsh aliases/env)
+# -----------------------------------------
+
+[ -f "$HOME/.dotfiles/shell/env.sh" ]     && . "$HOME/.dotfiles/shell/env.sh"
+[ -f "$HOME/.dotfiles/shell/aliases.sh" ] && . "$HOME/.dotfiles/shell/aliases.sh"
+
+# -----------------------------------------
+# Better tools
+# -----------------------------------------
+
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
+command -v atuin  >/dev/null 2>&1 && eval "$(atuin init zsh)"
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# -----------------------------------------
+# Fastfetch (interactive sessions only)
+# -----------------------------------------
+
+fastfetch() {
+  local ascii_dir="$HOME/Pictures/ascii"
+  local cfg="$HOME/.config/fastfetch/config.jsonc"
+  local min_cols=120
+  local min_lines=32
+
+  local logo_choices=(
+    "aperture.fastfetch.ascii|blue"
+    "aperture2.fastfetch.ascii|blue"
+    "blackmesa.fastfetch.ascii|#ff8700"
+    "half-life.fastfetch.ascii|#ff8700"
+  )
+
+  local available=()
+  local choice logo color
+  for choice in $logo_choices; do
+    logo="$ascii_dir/${choice%%|*}"
+    [[ -f "$logo" ]] && available+=("$choice")
+  done
+
+  if (( COLUMNS >= min_cols && LINES >= min_lines && ${#available[@]} > 0 )); then
+    choice="${available[$(( RANDOM % ${#available[@]} + 1 ))]}"
+    logo="$ascii_dir/${choice%%|*}"
+    color="${choice##*|}"
+    command fastfetch -c "$cfg" --logo-type file --logo "$logo" --logo-color-1 "$color" "$@"
+  else
+    command fastfetch -c "$cfg" --logo none "$@"
+  fi
+}
+
+if [[ -o interactive ]] && [[ "$TERM_PROGRAM" != "vscode" && "$TERM_PROGRAM" != "cursor" ]]; then
+  fastfetch
+fi
+
+alias ff='fastfetch'
+
+# -----------------------------------------
+# Machine-specific overrides (not tracked)
+# -----------------------------------------
+
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

@@ -211,6 +211,33 @@ install_shell_config() {
   done
 }
 
+link_file() {
+  # link_file <src-relative-to-dotfiles> <dest-absolute>
+  src="$DOTFILES_DIR/$1"
+  dest="$2"
+  [ -e "$src" ] || { warn "Missing dotfiles source: $src"; return 1; }
+
+  if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
+    log "Already linked: $dest"
+    return 0
+  fi
+
+  if [ -e "$dest" ]; then
+    backup="${dest}.bak.$(date +%Y%m%d-%H%M%S)"
+    log "Backing up $dest -> $backup"
+    mv "$dest" "$backup"
+  fi
+
+  mkdir -p "$(dirname "$dest")"
+  log "Linking $dest -> $src"
+  ln -s "$src" "$dest"
+}
+
+link_ghostty()   { link_file "ghostty/config"        "$HOME/.config/ghostty/config"; }
+link_gitconfig() { link_file "git/gitconfig"          "$HOME/.gitconfig"; }
+link_zsh()       { link_file "zsh/zshrc"              "$HOME/.zshrc"; }
+link_fastfetch() { link_file "fastfetch/config.jsonc" "$HOME/.config/fastfetch/config.jsonc"; }
+
 sync_nvim_plugins() {
   if command -v nvim >/dev/null 2>&1; then
     log "Installing/syncing Neovim plugins"
@@ -225,6 +252,10 @@ install_nvim
 clone_or_update_dotfiles
 install_lazyvim_tools
 link_nvim
+link_ghostty
+link_gitconfig
+link_zsh
+link_fastfetch
 install_shell_config
 sync_nvim_plugins
 
