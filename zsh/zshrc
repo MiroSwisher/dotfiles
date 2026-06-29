@@ -75,6 +75,9 @@ PROMPT='%B%{$fg[green]%}%n@%m%{$reset_color%}%b:%B%{$fg[blue]%}%~%{$reset_color%
 
 export PATH="$HOME/.local/bin:$PATH"
 
+# Atuin — put its bin on PATH early so `command -v atuin` succeeds below
+[ -f "$HOME/.atuin/bin/env" ] && . "$HOME/.atuin/bin/env"
+
 # NVM — lazy load
 export NVM_DIR="$HOME/.nvm"
 
@@ -136,8 +139,16 @@ export VISUAL="nvim"
 # -----------------------------------------
 
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
+
+# fzf: modern versions ship `fzf --zsh`; fall back to the old install file.
+# Load fzf BEFORE atuin so atuin's Ctrl+R binding wins (fzf keeps Ctrl+T / Alt+C).
+if command -v fzf >/dev/null 2>&1 && fzf --zsh >/dev/null 2>&1; then
+  eval "$(fzf --zsh)"
+elif [ -f ~/.fzf.zsh ]; then
+  source ~/.fzf.zsh
+fi
+
 command -v atuin  >/dev/null 2>&1 && eval "$(atuin init zsh)"
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # -----------------------------------------
 # Fastfetch (interactive sessions only)
